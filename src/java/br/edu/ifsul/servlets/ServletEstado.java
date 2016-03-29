@@ -1,13 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package br.edu.ifsul.servlets;
 
 import br.edu.ifsul.dao.EstadoDAO;
 import br.edu.ifsul.modelo.Estado;
 import java.io.IOException;
+import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -16,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  *
- * @author Bruno
+ * @author jorge
  */
 @WebServlet(name = "ServletEstado", urlPatterns = {"/estado/ServletEstado"})
 public class ServletEstado extends HttpServlet {
@@ -33,58 +29,52 @@ public class ServletEstado extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         EstadoDAO dao = (EstadoDAO) request.getSession().getAttribute("estadoDao");
-        if (dao == null) {
+        if (dao == null){
             dao = new EstadoDAO();
         }
         String tela = "";
         String acao = request.getParameter("acao");
-        if (acao == null) {
+        if (acao == null){
             tela = "listar.jsp";
-        } 
-        else if (acao.equals("incluir")) {
+        } else if (acao.equals("incluir")){
             dao.setObjetoSelecionado(new Estado());
             dao.setMensagem("");
             tela = "formulario.jsp";
-        }
-        else if (acao.equals("alterar")) {
+        } else if (acao.equals("alterar")){
             Integer id = Integer.parseInt(request.getParameter("id"));
             dao.setObjetoSelecionado(dao.localizar(id));
             dao.setMensagem("");
-            tela = "formulario.jsp";
-        }
-        else if (acao.equals("excluir")) {
+            tela = "formulario.jsp";            
+        } else  if (acao.equals("excluir")){
             Integer id = Integer.parseInt(request.getParameter("id"));
             Estado obj = dao.localizar(id);
-            if (obj != null) {
-                dao.remover(obj);
+            if (obj != null){
+                dao.remover(obj);                
             }
             tela = "listar.jsp";
-        }
-        else if (acao.equals("salvar")) {
+        } else  if (acao.equals("salvar")){
             Integer id = null;
             try {
                 id = Integer.parseInt(request.getParameter("id"));
-            } catch (Exception e) {
-                dao.setMensagem("Erro ao convert o ID");
+            } catch (Exception e){
+                dao.setMensagem("Erro ao converter o ID");
             }
             dao.getObjetoSelecionado().setId(id);
             dao.getObjetoSelecionado().setNome(request.getParameter("nome"));
             dao.getObjetoSelecionado().setUf(request.getParameter("uf"));
-            if (dao.validaObjeto(dao.getObjetoSelecionado())) {
+            if (dao.validaObjeto(dao.getObjetoSelecionado())){
                 dao.salvar(dao.getObjetoSelecionado());
                 tela = "listar.jsp";
-            }
-            else {
+            } else {
                 tela = "formulario.jsp";
             }
-        }
-        else if (acao.equals("cancelar")) {
+        } else if (acao.equals("cancelar")){
             dao.setMensagem("");
             tela = "listar.jsp";
         }
         // atualizar o dao na sessão
         request.getSession().setAttribute("estadoDao", dao);
-        // redirecionar para a tela desejada
+        // redireciono para a tela desejada
         response.sendRedirect(tela);
     }
 

@@ -1,4 +1,3 @@
-
 package br.edu.ifsul.dao;
 
 import br.edu.ifsul.jpa.EntityManagerUtil;
@@ -8,86 +7,86 @@ import java.util.List;
 import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.validation.ConstraintViolation;
+import javax.validation.OverridesAttribute;
 import javax.validation.Validation;
 import javax.validation.Validator;
 
 /**
  *
- * @author Bruno
+ * @author Jorge Luis Boeira Bavaresco
+ * @email jorge.bavaresco@passofundo.ifsul.edu.br
  */
 public class EstadoDAO {
-    
     private Estado objetoSelecionado;
     private String mensagem = "";
     private EntityManager em;
-
-    public EstadoDAO() {
+    
+    public EstadoDAO(){
         em = EntityManagerUtil.getEntityManager();
     }
+        
+    public boolean validaObjeto(Estado obj){
+        Validator validador = Validation.buildDefaultValidatorFactory().getValidator();
+        Set<ConstraintViolation<Estado>> erros =
+                validador.validate(obj);
+        if (erros.size() > 0){
+            mensagem = "";
+            mensagem += "Objeto com erros!<br/>";
+            for (ConstraintViolation<Estado> erro : erros){
+                mensagem += "Erro: "+erro.getMessage()+"<br/>";
+            }
+            return false;
+        } else {
+            return true;
+        }
+    }
     
-    public List<Estado> getLista () {
-        // jpql => FROM NA CLASSE E NÃO NO BANCO
+    public List<Estado> getLista(){
         return em.createQuery("from Estado order by nome").getResultList();
     }
     
-    public boolean salvar (Estado est) {
+    public boolean salvar(Estado obj){
         try {
             em.getTransaction().begin();
-            if (est.getId() == null) {
-                em.persist(est);
-            }
-            else {
-                em.merge(est);
+            if (obj.getId() == null){
+                em.persist(obj);
+            } else {
+                em.merge(obj);
             }
             em.getTransaction().commit();
             mensagem = "Objeto persistido com sucesso!";
             return true;
-        } catch (Exception e) {
-            if (em.getTransaction().isActive() == false) {
+        } catch (Exception e){
+            if (em.getTransaction().isActive() == false){
                 em.getTransaction().begin();
             }
             em.getTransaction().rollback();
-            mensagem = "Erro ao persistir: " + Util.getMensagemErro(e);
+            mensagem = "Erro ao persistir: "+Util.getMensagemErro(e);
             return false;
         }
     }
     
-    public boolean remover (Estado est) {
+    public boolean remover(Estado obj){
         try {
             em.getTransaction().begin();
-            em.remove(est);
+            em.remove(obj);
             em.getTransaction().commit();
             mensagem = "Objeto removido com sucesso!";
             return true;
-        } catch (Exception e) {
-            if (em.getTransaction().isActive() == false) {
+        } catch (Exception e){
+            if (em.getTransaction().isActive() == false){
                 em.getTransaction().begin();
             }
             em.getTransaction().rollback();
-            mensagem = "Erro ao remover: " + Util.getMensagemErro(e);
+            mensagem = "Erro ao remover objeto: "+Util.getMensagemErro(e);
             return false;
         }
-    }
+    }    
     
-    public Estado localizar (Integer id) {
+    public Estado localizar(Integer id){
         return em.find(Estado.class, id);
     }
-    
-    public boolean validaObjeto (Estado e) {
-        Validator validador = Validation.buildDefaultValidatorFactory().getValidator();
-        Set<ConstraintViolation<Estado>> erros = validador.validate(e);
-        if (erros.size() > 0) {
-            mensagem = "Objeto com erros!<br/>";
-            for (ConstraintViolation<Estado> erro : erros) {
-                mensagem += "Erro: " + erro.getMessage() + "<br/>";
-            }
-            return false;
-        }
-        else {
-            return true;
-        }
-    }
-    
+
     public Estado getObjetoSelecionado() {
         return objetoSelecionado;
     }
@@ -112,4 +111,5 @@ public class EstadoDAO {
         this.em = em;
     }
     
+
 }
