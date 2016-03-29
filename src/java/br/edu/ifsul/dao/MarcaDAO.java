@@ -2,7 +2,7 @@
 package br.edu.ifsul.dao;
 
 import br.edu.ifsul.jpa.EntityManagerUtil;
-import br.edu.ifsul.modelo.Estado;
+import br.edu.ifsul.modelo.Marca;
 import br.edu.ifsul.util.Util;
 import java.util.List;
 import java.util.Set;
@@ -15,29 +15,29 @@ import javax.validation.Validator;
  *
  * @author Bruno
  */
-public class EstadoDAO {
+public class MarcaDAO {
     
-    private Estado objetoSelecionado;
+    private Marca objetoSelecionado;
     private String mensagem = "";
     private EntityManager em;
 
-    public EstadoDAO() {
+    public MarcaDAO() {
         em = EntityManagerUtil.getEntityManager();
     }
     
-    public List<Estado> getLista () {
+    public List<Marca> getLista () {
         // jpql => FROM NA CLASSE E NÃO NO BANCO
-        return em.createQuery("from Estado order by nome").getResultList();
+        return em.createQuery("from Marca order by nome").getResultList();
     }
-    
-    public boolean salvar (Estado est) {
+   
+    public boolean salvar (Marca marca) {
         try {
             em.getTransaction().begin();
-            if (est.getId() == null) {
-                em.persist(est);
+            if (marca.getId() == null) {
+                em.persist(marca);
             }
             else {
-                em.merge(est);
+                em.merge(marca);
             }
             em.getTransaction().commit();
             mensagem = "Objeto persistido com sucesso!";
@@ -52,10 +52,10 @@ public class EstadoDAO {
         }
     }
     
-    public boolean remover (Estado est) {
+    public boolean remover (Marca marca) {
         try {
             em.getTransaction().begin();
-            em.remove(est);
+            em.remove(marca);
             em.getTransaction().commit();
             mensagem = "Objeto removido com sucesso!";
             return true;
@@ -69,30 +69,30 @@ public class EstadoDAO {
         }
     }
     
-    public Estado localizar (Integer id) {
-        return em.find(Estado.class, id);
-    }
-    
-    public boolean validaObjeto (Estado e) {
+    public boolean validaObjeto(Marca obj){
         Validator validador = Validation.buildDefaultValidatorFactory().getValidator();
-        Set<ConstraintViolation<Estado>> erros = validador.validate(e);
-        if (erros.size() > 0) {
-            mensagem = "Objeto com erros!<br/>";
-            for (ConstraintViolation<Estado> erro : erros) {
-                mensagem += "Erro: " + erro.getMessage() + "<br/>";
+        Set<ConstraintViolation<Marca>> erros = validador.validate(obj);
+        if (erros.size() > 0){
+            mensagem = "";
+            mensagem += "Objeto com erros!<br/>";
+            for (ConstraintViolation<Marca> erro : erros){
+                mensagem += "Erro: "+erro.getMessage()+"<br/>";
             }
             return false;
-        }
-        else {
+        } else {
             return true;
         }
     }
     
-    public Estado getObjetoSelecionado() {
+    public Marca localizar (Integer id) {
+        return em.find(Marca.class, id);
+    }
+    
+    public Marca getObjetoSelecionado() {
         return objetoSelecionado;
     }
 
-    public void setObjetoSelecionado(Estado objetoSelecionado) {
+    public void setObjetoSelecionado(Marca objetoSelecionado) {
         this.objetoSelecionado = objetoSelecionado;
     }
 
@@ -111,5 +111,7 @@ public class EstadoDAO {
     public void setEm(EntityManager em) {
         this.em = em;
     }
+    
+    
     
 }
